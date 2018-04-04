@@ -1,0 +1,53 @@
+---
+
+- name: check shadowsocks-libev source exists
+  stat:
+    path: /etc/apt/sources.list.d/max-c-lv-ubuntu-shadowsocks-libev-xenial.list
+  register: stat_result
+
+- name: add shadowsocks libev source
+  shell: |
+    apt-get install software-properties-common -y
+    add-apt-repository ppa:max-c-lv/shadowsocks-libev -y
+  when: stat_result.stat.exists == False
+
+- name: apt update
+  shell: apt update
+  ignore_errors: yes
+  when: stat_result.stat.exists == False
+
+- name: install shadowsocks-libev
+  apt:
+    name: shadowsocks-libev
+    state: present
+  when: stat_result.stat.exists == False
+
+- name: config shadowsocks client
+  template: 
+    src: "client.json.j2"
+    dest: "/etc/shadowsocks-libev/config.json"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: start ss service
+  shell: |
+    systemctl daemon-reload
+    systemctl start shadowsocks-libev-local@config
+    systemctl enable shadowsocks-libev-local@config
+
+- name: install proxychains
+  apt: 
+    name: proxychains
+    state: present
+
+- name: config proxychains
+  template:
+    src: "proxychains.conf.j2"
+    dest: "/etc/proxychains.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+
+- name: test gfw
+  shell: proxychains curl --connect-timeout 10 https://twitter.com
