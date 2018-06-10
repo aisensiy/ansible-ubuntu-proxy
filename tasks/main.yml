@@ -49,5 +49,24 @@
     group: "root"
     mode: "0644"
 
-- name: test gfw
+- name: test proxychain
   shell: proxychains curl --connect-timeout 10 https://twitter.com
+
+- name: install polipo
+  apt:
+    name: polipo
+    state: present
+
+- name: copy polipo config
+  template: 
+    src: "polipo.config"
+    dest: "/etc/polipo/config"
+
+- name: restart polipo
+  shell: |
+    systemctl daemon-reload
+    systemctl restart polipo
+    systemctl enable polipo
+
+- name: test polipo
+  shell: http_proxy=http://localhost:8123 curl www.google.com
