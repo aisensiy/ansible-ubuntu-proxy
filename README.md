@@ -1,17 +1,24 @@
-Role Name
+Ansible ubuntu proxy
 =========
 
-A brief description of the role goes here.
+为国内服务器创建代理。
 
 Requirements
 ------------
 
-Any pre-requisites that may not be covered by Ansible itself or the role should be mentioned here. For instance, if the role uses the EC2 module, it may be a good idea to mention in this section that the boto package is required.
+有一个 ss server
 
 Role Variables
 --------------
 
-A description of the settable variables for this role should go here, including any variables that are in defaults/main.yml, vars/main.yml, and any variables that can/should be set via parameters to the role. Any variables that are read from other roles and/or the global scope (ie. hostvars, group vars, etc.) should be mentioned here as well.
+见 `vars/main.yml`
+
+```
+ssserver: "ssserver_ip"
+ssserver_port: 1984
+ssserver_method: "aes-256-cfb"
+ssserver_password: "123123"
+```
 
 Dependencies
 ------------
@@ -23,9 +30,13 @@ Example Playbook
 
 Including an example of how to use your role (for instance, with variables passed in as parameters) is always nice for users too:
 
-    - hosts: servers
+    - hosts: docker
       roles:
-         - { role: username.rolename, x: 42 }
+         - role: ansible-docker-accelerate
+           ssserver: "server"
+           ssserver_port: 1984
+           ssserver_method: "aes"
+           ssserver_password: "123123"
 
 License
 -------
