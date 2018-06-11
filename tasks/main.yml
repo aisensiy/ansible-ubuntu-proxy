@@ -56,17 +56,49 @@
   apt:
     name: polipo
     state: present
+  tags:
+    - socks-to-http
 
 - name: copy polipo config
   template: 
     src: "polipo.config"
     dest: "/etc/polipo/config"
+  tags:
+    - socks-to-http
 
 - name: restart polipo
   shell: |
     systemctl daemon-reload
     systemctl restart polipo
     systemctl enable polipo
+  tags:
+    - socks-to-http
 
 - name: test polipo
   shell: http_proxy=http://localhost:8123 curl www.google.com
+  tags:
+    - socks-to-http
+
+- name: add http proxy config dir for docker
+  file: 
+    path: /etc/systemd/system/docker.service.d
+    state: directory
+  tags:
+    - docker-proxy
+
+- name: copy config for docker http proxy
+  template: 
+    src: "http-proxy.conf.j2"
+    dest: "/etc/systemd/system/docker.service.d/http-proxy.conf"
+    owner: "root"
+    group: "root"
+    mode: "0644"
+  tags:
+    - docker-proxy
+
+- name: restart docker service
+  shell: |
+    systemctl daemon-reload
+    systemctl restart docker
+  tags:
+    - docker-proxy
