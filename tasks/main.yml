@@ -33,7 +33,7 @@
 - name: start ss service
   shell: |
     systemctl daemon-reload
-    systemctl start shadowsocks-libev-local@config
+    systemctl restart shadowsocks-libev-local@config
     systemctl enable shadowsocks-libev-local@config
 
 - name: install proxychains
@@ -50,7 +50,8 @@
     mode: "0644"
 
 - name: test proxychain
-  shell: proxychains curl --connect-timeout 10 https://twitter.com
+  ignore_errors: yes
+  shell: proxychains curl --connect-timeout 20 https://twitter.com
 
 - name: install polipo
   apt:
@@ -79,26 +80,26 @@
   tags:
     - socks-to-http
 
-- name: add http proxy config dir for docker
-  file: 
-    path: /etc/systemd/system/docker.service.d
-    state: directory
-  tags:
-    - docker-proxy
-
-- name: copy config for docker http proxy
-  template: 
-    src: "http-proxy.conf.j2"
-    dest: "/etc/systemd/system/docker.service.d/http-proxy.conf"
-    owner: "root"
-    group: "root"
-    mode: "0644"
-  tags:
-    - docker-proxy
-
-- name: restart docker service
-  shell: |
-    systemctl daemon-reload
-    systemctl restart docker
-  tags:
-    - docker-proxy
+      # - name: add http proxy config dir for docker
+      #   file: 
+      #     path: /etc/systemd/system/docker.service.d
+      #     state: directory
+      #   tags:
+      #     - docker-proxy
+      # 
+      # - name: copy config for docker http proxy
+      #   template: 
+      #     src: "http-proxy.conf.j2"
+      #     dest: "/etc/systemd/system/docker.service.d/http-proxy.conf"
+      #     owner: "root"
+      #     group: "root"
+      #     mode: "0644"
+      #   tags:
+      #     - docker-proxy
+      # 
+      # - name: restart docker service
+      #   shell: |
+      #     systemctl daemon-reload
+      #     systemctl restart docker
+      #   tags:
+      #     - docker-proxy
